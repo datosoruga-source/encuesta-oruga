@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Encuesta de satisfacción · Oruga</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --leaf-deep:#1d3b2a;--leaf-mid:#2f5a3f;--amber:#e8a33d;--amber-glow:#f5c56b;
+    --cream:#f4f0e6;--cream-dim:#c9c8bd;--detractor:#c25b4e;--passive:#c9a24a;--promoter:#4e9d6b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -10%, rgba(232,163,61,.18), transparent 60%),linear-gradient(160deg,var(--leaf-deep) 0%, #142a1e 100%);
+    color:var(--cream);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
+  .card{width:100%;max-width:760px;text-align:center;}
+  .progress{display:flex;gap:8px;justify-content:center;margin-bottom:34px;}
+  .progress span{width:30px;height:4px;border-radius:4px;background:rgba(244,240,230,.16);transition:background .3s ease;}
+  .progress span.done{background:var(--amber);}
+  .eyebrow{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:20px;}
+  .eyebrow .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);vertical-align:middle;margin:0 10px 3px;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4.6vw,44px);line-height:1.12;letter-spacing:-.01em;margin-bottom:12px;}
+  h1 .accent{color:var(--amber-glow);font-style:italic;}
+  .sub{color:var(--cream-dim);font-size:clamp(14px,2.3vw,17px);max-width:520px;margin:0 auto 38px;line-height:1.5;}
+  .step{display:none;animation:rise .5s cubic-bezier(.2,.8,.2,1) both;}
+  .step.on{display:block;}
+  @keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+  .stars{display:flex;gap:12px;justify-content:center;margin-bottom:10px;}
+  .star{width:clamp(48px,10vw,70px);height:clamp(48px,10vw,70px);cursor:pointer;color:rgba(244,240,230,.22);transition:transform .15s ease, color .2s ease;}
+  .star:hover,.star:focus-visible{transform:translateY(-5px) scale(1.06);color:var(--amber-glow);outline:none;}
+  .star:active{transform:scale(.9);}
+  .star svg{width:100%;height:100%;display:block;}
+  .starlabel{color:var(--cream-dim);font-size:13px;margin-top:8px;display:flex;justify-content:space-between;max-width:360px;margin:8px auto 0;}
+  .scale{display:grid;grid-template-columns:repeat(11,1fr);gap:8px;margin-bottom:16px;}
+  @media(max-width:560px){.scale{grid-template-columns:repeat(6,1fr);gap:9px;}}
+  .num{aspect-ratio:1;border:1px solid rgba(244,240,230,.18);border-radius:14px;background:rgba(244,240,230,.04);color:var(--cream);
+    font-family:'Fraunces',serif;font-weight:600;font-size:clamp(17px,3.2vw,23px);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .15s ease, background .2s ease, border-color .2s ease;}
+  .num:hover,.num:focus-visible{transform:translateY(-4px);border-color:var(--amber);background:rgba(232,163,61,.14);outline:none;}
+  .num:active{transform:translateY(-1px) scale(.96);}
+  .num[data-zone="d"]:hover{border-color:var(--detractor);background:rgba(194,91,78,.18);}
+  .num[data-zone="p"]:hover{border-color:var(--passive);background:rgba(201,162,74,.18);}
+  .num[data-zone="pr"]:hover{border-color:var(--promoter);background:rgba(78,157,107,.2);}
+  .legend{display:flex;justify-content:space-between;color:var(--cream-dim);font-size:13px;max-width:640px;margin:0 auto;padding:0 4px;}
+  textarea{width:100%;max-width:560px;min-height:130px;margin:0 auto 22px;display:block;background:rgba(244,240,230,.06);
+    border:1px solid rgba(244,240,230,.2);border-radius:16px;padding:18px 20px;color:var(--cream);
+    font-family:'Inter',sans-serif;font-size:16px;line-height:1.5;resize:none;transition:border-color .2s ease, background .2s ease;}
+  textarea::placeholder{color:rgba(201,200,189,.7);}
+  textarea:focus{outline:none;border-color:var(--amber);background:rgba(232,163,61,.08);}
+  .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .btn{font-family:'Inter',sans-serif;font-size:16px;font-weight:600;padding:15px 34px;border-radius:100px;cursor:pointer;border:none;
+    transition:transform .15s ease, box-shadow .2s ease, background .2s ease;}
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--amber);color:#1a2e20;box-shadow:0 6px 20px rgba(232,163,61,.35);}
+  .btn-primary:hover{background:var(--amber-glow);}
+  .btn-ghost{background:transparent;color:var(--cream-dim);border:1px solid rgba(244,240,230,.24);}
+  .btn-ghost:hover{color:var(--cream);border-color:rgba(244,240,230,.5);}
+  .checkwrap{width:92px;height:92px;margin:0 auto 24px;}
+  .checkwrap svg{width:100%;height:100%;}
+  .ring{stroke:var(--amber);stroke-width:4;fill:none;stroke-dasharray:283;stroke-dashoffset:283;animation:draw .6s ease forwards;}
+  .tick{stroke:var(--amber);stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .4s .5s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .state-msg{color:var(--cream-dim);font-size:14px;margin-top:8px;min-height:20px;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="progress" id="progress"><span></span><span></span><span></span><span></span><span></span></div>
+
+    <section class="step on" data-step="0">
+      <div class="eyebrow">Oruga <span class="dot"></span> Pregunta 1 de 4</div>
+      <h1>¿Cómo calificás el <span class="accent">espacio</span> y la comodidad?</h1>
+      <p class="sub">Escritorios, sillas, limpieza, silencio. Tocá una estrella.</p>
+      <div class="stars" data-campo="espacio"></div>
+      <div class="starlabel"><span>Malo</span><span>Excelente</span></div>
+    </section>
+
+    <section class="step" data-step="1">
+      <div class="eyebrow">Oruga <span class="dot"></span> Pregunta 2 de 4</div>
+      <h1>¿Cómo fue la <span class="accent">atención</span> del equipo?</h1>
+      <p class="sub">El trato, la predisposición, qué tan bien te atendieron.</p>
+      <div class="stars" data-campo="atencion"></div>
+      <div class="starlabel"><span>Mala</span><span>Excelente</span></div>
+    </section>
+
+    <section class="step" data-step="2">
+      <div class="eyebrow">Oruga <span class="dot"></span> Pregunta 3 de 4</div>
+      <h1>¿Cómo calificás los <span class="accent">servicios</span>?</h1>
+      <p class="sub">Internet, café, salas de reunión y todo lo que usás a diario.</p>
+      <div class="stars" data-campo="servicios"></div>
+      <div class="starlabel"><span>Malos</span><span>Excelentes</span></div>
+    </section>
+
+    <section class="step" data-step="3">
+      <div class="eyebrow">Oruga <span class="dot"></span> Pregunta 4 de 4</div>
+      <h1>¿Qué tan probable es que <span class="accent">nos recomiendes</span>?</h1>
+      <p class="sub">A un amigo o colega. Tocá un número del 0 al 10.</p>
+      <div class="scale" id="scale" role="group" aria-label="Escala 0 a 10"></div>
+      <div class="legend"><span>0 · Nada probable</span><span>10 · Muy probable</span></div>
+    </section>
+
+    <section class="step" data-step="4">
+      <div class="eyebrow">Oruga <span class="dot"></span> Un último detalle</div>
+      <h1 id="comTitle"></h1>
+      <p class="sub" id="comSub"></p>
+      <textarea id="comentario" placeholder=""></textarea>
+      <div class="actions">
+        <button class="btn btn-ghost" onclick="enviar()">Omitir</button>
+        <button class="btn btn-primary" onclick="enviar()">Enviar</button>
+      </div>
+    </section>
+
+    <section class="step" data-step="5">
+      <div class="checkwrap"><svg viewBox="0 0 100 100"><circle class="ring" cx="50" cy="50" r="45"/><path class="tick" d="M30 52 L45 66 L72 36"/></svg></div>
+      <h1>¡Gracias!</h1>
+      <p class="sub">Tus respuestas quedaron registradas. Que tengas un gran día en Oruga.</p>
+      <p class="state-msg" id="stateMsg"></p>
+    </section>
+  </div>
+
+<script>
+const SHEETS_URL = "const SHEETS_URL = "https://script.google.com/macros/s/AKfy.../exec";";
+const KIOSK_MODE = true;
+const RESET_SECONDS = 6;
+
+const respuestas = { espacio:'', atencion:'', servicios:'', nps:'', categoria:'', comentario:'' };
+let pasoActual = 0;
+
+const iconStar='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7L12 2z"/></svg>';
+document.querySelectorAll('.stars').forEach(cont=>{
+  const campo=cont.dataset.campo;
+  for(let i=1;i<=5;i++){
+    const b=document.createElement('button');
+    b.className='star';b.innerHTML=iconStar;
+    b.setAttribute('aria-label',i+' de 5');
+    b.onclick=()=>{ respuestas[campo]=i; avanzar(); };
+    cont.appendChild(b);
+  }
+});
+
+const scale=document.getElementById('scale');
+for(let i=0;i<=10;i++){
+  const b=document.createElement('button');
+  b.className='num';b.textContent=i;
+  b.dataset.zone=i<=6?'d':(i<=8?'p':'pr');
+  b.setAttribute('aria-label','Puntaje '+i);
+  b.onclick=()=>{
+    respuestas.nps=i;
+    respuestas.categoria=i<=6?'Detractor':(i<=8?'Pasivo':'Promotor');
+    prepararComentario(i);
+    avanzar();
+  };
+  scale.appendChild(b);
+}
+
+function prepararComentario(nps){
+  const t=document.getElementById('comTitle');
+  const s=document.getElementById('comSub');
+  const area=document.getElementById('comentario');
+  if(nps>=9){
+    t.innerHTML='¡Nos alegra! ¿Qué es lo que <span class="accent">más disfrutás</span>?';
+    s.textContent='Contanos qué te encanta de Oruga. Tu comentario nos ayuda un montón (opcional).';
+    area.placeholder='Ej: el ambiente, el café, la gente...';
+  }else{
+    t.innerHTML='Gracias por tu sinceridad. ¿Qué podríamos <span class="accent">mejorar</span>?';
+    s.textContent='Tu sugerencia nos ayuda a crecer y ofrecerte un mejor servicio (opcional).';
+    area.placeholder='Ej: más silencio, mejor wifi, otro horario...';
+  }
+}
+
+function mostrarPaso(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
+  document.querySelector('.step[data-step="'+n+'"]').classList.add('on');
+  const spans=document.querySelectorAll('#progress span');
+  spans.forEach((sp,i)=> sp.classList.toggle('done', i<n));
+}
+function avanzar(){ pasoActual++; mostrarPaso(pasoActual); }
+
+async function enviar(){
+  respuestas.comentario=document.getElementById('comentario').value.trim();
+  pasoActual=5; mostrarPaso(5);
+  document.querySelectorAll('#progress span').forEach(sp=>sp.classList.add('done'));
+  const msg=document.getElementById('stateMsg');
+  const datos={
+    fecha:new Date().toLocaleString('es-AR'),
+    espacio:respuestas.espacio,atencion:respuestas.atencion,servicios:respuestas.servicios,
+    nps:respuestas.nps,categoria:respuestas.categoria,comentario:respuestas.comentario
+  };
+  if(SHEETS_URL && !SHEETS_URL.startsWith('PEGAR')){
+    try{
+      await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(datos)});
+    }catch(e){ msg.textContent='(No se pudo guardar online, revisá la conexión)'; }
+  }else{ msg.textContent='⚠️ Falta pegar la URL de Google Sheets en el código.'; }
+  if(KIOSK_MODE) setTimeout(reset, RESET_SECONDS*1000);
+}
+
+function reset(){
+  for(let k in respuestas) respuestas[k]='';
+  document.getElementById('comentario').value='';
+  pasoActual=0; mostrarPaso(0);
+}
+</script>
+</body>
+</html>
